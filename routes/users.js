@@ -64,4 +64,35 @@ router.get('/logout', (req, res, next) => {
 	}
 });
 
+router.post('/admin/signup', (req, res) => {
+	User.register(new User({ username: req.body.username, admin: true }), req.body.password, (err, user) => {
+	  if (err) {
+		res.statusCode = 500;
+		res.setHeader('Content-Type', 'application/json');
+		res.json({ error: err });
+	  } else {
+		if (req.body.firstname) {
+		  user.firstname = req.body.firstname;
+		}
+		if (req.body.lastname) {
+		  user.lastname = req.body.lastname;
+		}
+		user.save((err) => {
+		  if (err) {
+			res.statusCode = 500;
+			res.setHeader('Content-Type', 'application/json');
+			res.json({ error: err });
+		  } else {
+			passport.authenticate('local')(req, res, () => {
+			  res.statusCode = 200;
+			  res.setHeader('Content-Type', 'application/json');
+			  res.json({ success: true, status: 'Admin user registered successfully' });
+			});
+		  }
+		});
+	  }
+	});
+  });
+  
+
 module.exports = router;
